@@ -1,25 +1,28 @@
-# ---------------------------------------------------------------------------
-# terraform/outputs.tf
-# Values printed after `terraform apply` so you can immediately use the stack.
-# ---------------------------------------------------------------------------
+# outputs.tf
+# ==========
+# Outputs are values Terraform prints after "terraform apply" finishes.
+# The most important one is alb_url — that's the URL you open in your browser.
 
-# The full HTTP URL of the Application Load Balancer.  Open this in your
-# browser to reach the SongVault app.
-output "alb_dns_name" {
-  description = "Open this URL in your browser"
+# Open this URL in your browser. Your app is running here.
+output "alb_url" {
+  description = "Open this URL in your browser. Your app is running here."
   value       = "http://${aws_lb.main.dns_name}"
 }
 
-# The private DNS endpoint of the RDS PostgreSQL instance.  EC2 instances
-# inside the VPC use this to connect; it is never reachable from the internet.
+# The private address of your database. Used internally by the app.
 output "rds_endpoint" {
-  description = "RDS private endpoint"
+  description = "The private address of your database. Used internally by the app."
   value       = aws_db_instance.postgres.address
 }
 
-# The name of the Auto Scaling Group.  Useful for AWS CLI commands such as
-# `aws autoscaling describe-auto-scaling-groups`.
+# The name of your Auto Scaling Group — use this to find instances in the AWS Console.
 output "asg_name" {
-  description = "Auto Scaling Group name"
-  value       = aws_autoscaling_group.main.name
+  description = "The name of your Auto Scaling Group — use this to find instances in the AWS Console."
+  value       = aws_autoscaling_group.app.name
+}
+
+# Your VPC ID — useful for reference in the AWS Console.
+output "vpc_id" {
+  description = "Your VPC ID — useful for reference in the AWS Console."
+  value       = aws_vpc.main.id
 }

@@ -7,8 +7,6 @@
   <style>
     body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; }
     h2 { margin-top: 32px; }
-    ul { list-style: none; padding: 0; }
-    li { padding: 6px 0; border-bottom: 1px solid #eee; }
     .song-check { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
     button { margin-top: 16px; padding: 10px 24px; background: #28a745; color: white;
              border: none; border-radius: 4px; cursor: pointer; font-size: 15px; }
@@ -19,22 +17,22 @@
   </style>
 </head>
 <body>
-  <h1>🎶 Setlist Manager</h1>
+  <h1>Setlist Builder</h1>
 
   <!-- Checkbox form: select which songs belong to the setlist -->
   <h2>Choose Songs for Setlist</h2>
   <form method="POST" action="/setlist">
     {% if all_songs %}
-      {% for song_id, title in all_songs %}
+      {% for s in all_songs %}
       <div class="song-check">
-        <input type="checkbox" id="song_{{ song_id }}" name="song_ids" value="{{ song_id }}" />
-        <label for="song_{{ song_id }}">{{ title }}</label>
+        <input type="checkbox" id="song_{{ s[0] }}" name="song_ids" value="{{ s[0] }}" />
+        <label for="song_{{ s[0] }}">{{ s[1] }}</label>
       </div>
       {% endfor %}
     {% else %}
       <p>No songs available. <a href="/add">Add some songs first!</a></p>
     {% endif %}
-    <button type="submit">🔄 Update Setlist</button>
+    <button type="submit">Update Setlist</button>
   </form>
 
   <!-- Current setlist: ordered list with durations -->
@@ -42,10 +40,10 @@
   {% if current_setlist %}
   <ol>
     {% for title, duration_sec in current_setlist %}
-    <li>{{ title }} — {{ duration_sec or 0 }} sec</li>
+    <li>{{ title }} ({{ duration_sec or 0 }} sec)</li>
     {% endfor %}
   </ol>
-  <p class="total">Total Runtime: {{ total_runtime }} seconds</p>
+  <p class="total">Total Runtime: {{ total_sec }} seconds</p>
   {% else %}
   <p>No setlist yet. Check some songs above and click Update Setlist.</p>
   {% endif %}

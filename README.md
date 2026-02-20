@@ -1,268 +1,188 @@
-# SongVault 🎵
+# 🎵 SongVault — Highly Available Lyric & Setlist Manager on AWS
 
 ![Terraform](https://img.shields.io/badge/Terraform-%3E%3D1.5.0-623CE4?logo=terraform)
-![AWS](https://img.shields.io/badge/AWS-EC2%20%7C%20ALB%20%7C%20RDS-FF9900?logo=amazon-aws)
-![Python](https://img.shields.io/badge/Python-3.x%20Flask-3776AB?logo=python)
-
-SongVault is a Flask web application for managing song lyrics and setlists,
-deployed on AWS with high availability using an **Application Load Balancer**,
-**Auto Scaling Group**, and **RDS PostgreSQL** — fully automated with Terraform.
+![AWS](https://img.shields.io/badge/AWS-ALB%20%7C%20ASG%20%7C%20RDS-FF9900?logo=amazon-aws)
+![Python 3](https://img.shields.io/badge/Python-3.x-3776AB?logo=python)
+![Flask](https://img.shields.io/badge/Flask-3.0.0-000000?logo=flask)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?logo=postgresql)
 
 ---
 
-## What This Project Proves
+## What This Proves (Resume-Focused)
 
-This project demonstrates production-pattern AWS architecture skills:
-
-- ✅ **Infrastructure as Code** with Terraform (VPC, subnets, IGW, NAT, ASG, ALB, RDS)
-- ✅ **High Availability** across two Availability Zones
-- ✅ **Least-privilege security** with chained security groups (internet → ALB → EC2 → RDS)
-- ✅ **Automated instance bootstrap** via user-data script and systemd
-- ✅ **Secrets management** via environment variables (never in source code)
-- ✅ **Managed database** with RDS PostgreSQL in private subnets
+- ✅ **Infrastructure as Code** — entire AWS environment provisioned with Terraform; destroy and rebuild in one command
+- ✅ **High Availability** — ALB + ASG across two Availability Zones with automatic instance replacement
+- ✅ **Least-privilege security** — chained security groups: internet → ALB → EC2 → RDS; database unreachable from internet
+- ✅ **IAM best practices** — EC2 instances carry only CloudWatch + SSM permissions; no admin access
+- ✅ **Zero-touch deployments** — user-data heredocs bootstrap the entire app on EC2 without manual SSH
 
 ---
 
-## Architecture Diagram
+## What SongVault Does
 
-```
-  Internet
-     │
-     │  HTTP :80
-     ▼
-┌──────────────────────────────────────────┐
-│             AWS VPC (10.0.0.0/16)        │
-│                                          │
-│  Public Subnets (AZ-1, AZ-2)            │
-│  ┌────────────────────────────────┐      │
-│  │   Application Load Balancer    │      │
-│  │          (ALB)                 │      │
-│  └──────────────┬─────────────────┘      │
-│                 │ HTTP :8080             │
-│  Private Subnets (AZ-1, AZ-2)           │
-│  ┌──────────────┴─────────────────┐      │
-│  │      Auto Scaling Group        │      │
-│  │  ┌──────────┐  ┌──────────┐   │      │
-│  │  │ EC2 AZ-1 │  │ EC2 AZ-2 │   │      │
-│  │  │ Flask    │  │ Flask    │   │      │
-│  │  └────┬─────┘  └────┬─────┘   │      │
-│  └───────┼──────────────┼─────────┘      │
-│          │  TCP :5432   │               │
-│  ┌───────┴──────────────┴─────────┐      │
-│  │     RDS PostgreSQL (private)   │      │
-│  └────────────────────────────────┘      │
-└──────────────────────────────────────────┘
-```
+SongVault is a web application for musicians and songwriters. It lets you store song
+lyrics along with metadata (key, tempo, mood, duration) and build setlists with
+automatic total runtime calculation. Add songs from your phone before a gig, build
+a setlist, and know exactly how long your set runs.
+
+The application itself is deliberately simple — a Flask app backed by PostgreSQL.
+What makes this a portfolio-worthy project is the AWS architecture pattern behind it:
+the same ALB + ASG + RDS pattern used by real companies to serve millions of requests
+daily. Every engineering decision (private subnets, security group chaining, IAM
+roles, managed database) reflects production-grade thinking.
 
 ---
 
-## Prerequisites
+## Architecture
 
-Before deploying SongVault you need the following tools installed:
-
-| Tool | Install Guide |
-|------|--------------|
-| **AWS CLI** | https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html |
-| **Terraform** ≥ 1.5.0 | https://developer.hashicorp.com/terraform/install |
-| **Git** | https://git-scm.com/downloads |
-| **VS Code** (optional but recommended) | https://code.visualstudio.com/ |
-
-Configure your AWS credentials before running Terraform:
-
-```bash
-aws configure
-# Enter: AWS Access Key ID, Secret Access Key, default region (us-east-1), output format (json)
 ```
+                        ┌─────────────────────────────────┐
+                        │         AWS Cloud (VPC)          │
+                        │                                  │
+   Browser              │  PUBLIC SUBNETS                  │
+   (anyone              │  ┌──────────┐  ┌──────────┐     │
+    on the   ──────────►│  │  ALB     │  │  NAT GW  │     │
+    internet)           │  │ AZ1+AZ2  │  │  (AZ1)   │     │
+                        │  └────┬─────┘  └──────────┘     │
+                        │       │                          │
+                        │  PRIVATE SUBNETS                 │
+                        │  ┌────▼─────┐  ┌──────────┐     │
+                        │  │ EC2 App  │  │ EC2 App  │     │
+                        │  │  (AZ1)   │  │  (AZ2)   │     │
+                        │  └────┬─────┘  └────┬─────┘     │
+                        │       └──────┬───────┘            │
+                        │              │                    │
+                        │       ┌──────▼──────┐             │
+                        │       │  RDS Postgres│             │
+                        │       │  (private)   │             │
+                        │       └─────────────┘             │
+                        └─────────────────────────────────┘
+```
+
+Traffic flows: Internet → ALB (public subnet) → EC2 app servers (private subnet) → RDS (private subnet).
+The database is never reachable from the internet.
 
 ---
 
-## Deployment Instructions
+## Quick Start
 
-### 1. Clone the Repository
+> **First time?** Read [WALKTHROUGH.md](WALKTHROUGH.md) — it explains every step with expected output and common errors.
 
-```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME.git
-cd YOUR_REPO_NAME
-```
+1. **Install prerequisites**: AWS CLI, Terraform ≥ 1.5.0, Git ([details in WALKTHROUGH.md](WALKTHROUGH.md#phase-1--install-the-tools))
 
-### 2. Update the GitHub Repo URL in user-data.sh
+2. **Clone the repo**:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+   cd YOUR_REPO_NAME
+   ```
 
-Open `scripts/user-data.sh` and replace `YOUR_GITHUB_REPO_URL` with your
-actual repository URL:
+3. **Set up variables**:
+   ```bash
+   cd terraform
+   cp terraform.tfvars.example terraform.tfvars
+   ```
 
-```bash
-# Before:
-git clone YOUR_GITHUB_REPO_URL /opt/songvault-repo
+4. **Edit `terraform.tfvars`** — set `db_password` to a real password (letters and numbers only, min 8 chars)
 
-# After:
-git clone https://github.com/YOUR_USERNAME/songvault-ha-webapp.git /opt/songvault-repo
-```
+5. **Deploy**:
+   ```bash
+   terraform init && terraform plan && terraform apply
+   ```
 
-### 3. Initialise Terraform
+6. **Open the app** — copy the `alb_url` from the output and open it in your browser (wait ~3 min for instances to finish bootstrapping)
 
-```bash
-cd terraform
-terraform init
-```
-
-This downloads the AWS provider plugin (~50 MB). You should see:
-`Terraform has been successfully initialized!`
-
-### 4. Set a Real Database Password
-
-Edit `terraform/terraform.tfvars`:
-
-```hcl
-db_password = "MySecurePassword123!"  # use a real strong password
-```
-
-> ⚠️ **Never commit this file with a real password to a public repository.**
-> Add `terraform.tfvars` to `.gitignore` if your repo is public.
-
-### 5. Preview the Plan
-
-```bash
-terraform plan
-```
-
-Review the output — you should see ~20 resources to be created.
-
-### 6. Deploy
-
-```bash
-terraform apply
-```
-
-Type `yes` when prompted. Deployment takes about **5–10 minutes** (RDS takes
-the longest).
-
-When complete, Terraform prints:
-
-```
-Outputs:
-
-alb_dns_name = "http://songvault-alb-1234567890.us-east-1.elb.amazonaws.com"
-rds_endpoint = "songvault-db.xxxxxxxxxxxx.us-east-1.rds.amazonaws.com"
-asg_name     = "songvault-asg"
-```
-
-### 7. Open the App
-
-Copy the `alb_dns_name` URL and open it in your browser. The SongVault app
-should load within 3–5 minutes of the instances passing health checks.
+7. **Add a song and build a setlist** — you now have a live, highly available web application on AWS
 
 ---
 
 ## Prove High Availability
 
-Want to see the ASG self-healing in action? Follow these steps:
+This is the most important test. *"Companies pay cloud engineers to build this."*
 
-1. **Find a running instance** in the AWS Console → EC2 → Instances.
-   Look for instances named `songvault-app`.
+1. Open your app in a browser tab — confirm it works.
+2. AWS Console → EC2 → Instances → find a `songvault-app-server` → **Terminate** it.
+3. Refresh your browser tab. **The app still works** — traffic routed to the other AZ instance.
+4. EC2 → Auto Scaling Groups → `songvault-asg` → Activity tab — watch the ASG launch a replacement.
 
-2. **Terminate one instance** manually:
-   - Select the instance → Actions → Instance State → Terminate.
-   - Confirm termination.
-
-3. **Watch the ASG react**:
-   ```bash
-   aws autoscaling describe-auto-scaling-groups \
-     --auto-scaling-group-names songvault-asg \
-     --query 'AutoScalingGroups[0].Instances[*].{ID:InstanceId,State:LifecycleState,Health:HealthStatus}'
-   ```
-
-4. **Within 5 minutes**, the ASG launches a replacement instance. The app
-   continues running from the healthy instance in the other AZ.
-
-5. Refresh the ALB URL during the termination — traffic flows to the healthy
-   instance with no downtime.
+Total downtime: **0 minutes**. Recovery: fully automatic, ~5 minutes.
 
 ---
 
-## Screenshots
+## Screenshot Checklist
 
-> Replace these placeholder blocks with real screenshots after deploying.
-
-**Screenshot 1 — SongVault Homepage**
-```
-[ Add screenshot of http://<alb-dns>/  here ]
-```
-
-**Screenshot 2 — Add Song Form**
-```
-[ Add screenshot of http://<alb-dns>/add  here ]
-```
-
-**Screenshot 3 — Setlist Page**
-```
-[ Add screenshot of http://<alb-dns>/setlist  here ]
-```
-
-**Screenshot 4 — AWS Console showing ASG with 2 healthy instances**
-```
-[ Add screenshot of EC2 → Auto Scaling Groups → songvault-asg  here ]
-```
+- [ ] ALB URL open in browser showing the SongVault homepage
+- [ ] Song added to library with all fields filled
+- [ ] Setlist page with total runtime calculated
+- [ ] ASG Activity tab showing automatic instance replacement
 
 ---
 
 ## Resume Bullets
 
-Copy-paste these bullets directly into your resume:
+Copy-paste these directly into your resume:
 
-- **Designed and deployed a high-availability Flask web application on AWS** using Terraform, with an Application Load Balancer routing traffic across an Auto Scaling Group (min 2, max 4) spread across two Availability Zones, achieving zero-downtime instance replacement.
+> • Designed and deployed a highly available AWS web application using Terraform, ALB, and Auto Scaling across two Availability Zones with automated failure recovery.
 
-- **Architected a least-privilege network security model** using chained VPC Security Groups: internet traffic is restricted to the ALB, the ALB forwards only to EC2 app servers, and EC2 can only connect to RDS PostgreSQL — the database is unreachable from the internet.
+> • Built a Python/Flask application backed by RDS PostgreSQL in private subnets, applying least-privilege security group design to isolate all database access.
 
-- **Automated full infrastructure provisioning with Terraform** (VPC, subnets, IGW, NAT Gateway, RDS, ASG, ALB) and instance bootstrap via a user-data script that installs dependencies, injects secrets via environment variables, and registers the app as a systemd service.
+> • Automated Linux EC2 configuration using shell script heredocs and systemd, enabling zero-touch deployments with no manual SSH required.
+
+---
+
+## Cost Awareness ⚠️
+
+| Resource | Approx Cost |
+|----------|-------------|
+| NAT Gateway | ~$0.045/hr + data transfer |
+| RDS t3.micro | ~$0.017/hr |
+| EC2 t3.micro (×2) | ~$0.021/hr each |
+| ALB | ~$0.008/hr + LCU |
+| **Total** | **~$2–4/day** |
+
+The NAT Gateway is the biggest cost and runs 24/7 regardless of traffic.
+**Run `terraform destroy` when done testing.**
 
 ---
 
 ## Cleanup
 
-To destroy all AWS resources and stop incurring charges:
-
 ```bash
 cd terraform
 terraform destroy
+# Type "yes" when prompted. This deletes everything and stops all charges.
 ```
-
-Type `yes` when prompted.
-
-> 💰 **Cost Warning**: Running this stack costs approximately **$3–5 per day**
-> primarily due to the NAT Gateway (~$1.10/day) and RDS instance (~$0.017/hr).
-> Always run `terraform destroy` when you're done testing.
 
 ---
 
 ## File Structure
 
 ```
-songvault-ha-webapp/
-├── README.md
+.
+├── README.md               ← You are here
+├── WALKTHROUGH.md          ← Step-by-step guide for first-time AWS users
+├── .gitignore              ← Excludes terraform.tfvars and secrets
 ├── app/
-│   ├── app.py                  # Flask application
-│   ├── requirements.txt        # Python dependencies
+│   ├── app.py              ← Flask application
+│   ├── requirements.txt    ← Python dependencies
 │   └── templates/
-│       ├── index.html          # Homepage — song list
-│       ├── add_song.html       # Add new song form
-│       └── setlist.html        # Setlist manager
+│       ├── index.html      ← Homepage — song library
+│       ├── add_song.html   ← Add new song form
+│       └── setlist.html    ← Setlist builder
 ├── terraform/
-│   ├── main.tf                 # Terraform + provider config
-│   ├── variables.tf            # Input variables
-│   ├── outputs.tf              # ALB URL, RDS endpoint, ASG name
-│   ├── vpc.tf                  # VPC, subnets, IGW, NAT, route tables
-│   ├── security_groups.tf      # ALB, app, and RDS security groups
-│   ├── rds.tf                  # RDS PostgreSQL instance
-│   ├── launch_template.tf      # EC2 Launch Template (AMI + user-data)
-│   ├── asg.tf                  # Auto Scaling Group
-│   ├── alb.tf                  # ALB, Target Group, Listener
-│   └── terraform.tfvars        # Variable overrides (⚠️ don't commit passwords)
+│   ├── main.tf             ← Terraform + AWS provider config
+│   ├── variables.tf        ← Input variables
+│   ├── outputs.tf          ← alb_url, rds_endpoint, asg_name, vpc_id
+│   ├── networking.tf       ← VPC, subnets, IGW, NAT Gateway, route tables
+│   ├── security.tf         ← ALB, app, and RDS security groups
+│   ├── rds.tf              ← RDS PostgreSQL instance
+│   ├── compute.tf          ← IAM role, Launch Template, Auto Scaling Group
+│   ├── alb.tf              ← ALB, Target Group, Listener
+│   └── terraform.tfvars.example  ← Safe template (copy → terraform.tfvars)
 ├── scripts/
-│   └── user-data.sh            # EC2 bootstrap script
+│   └── user-data.sh        ← EC2 bootstrap script (heredocs, no git clone needed)
 └── docs/
-    ├── architecture.md         # Full architecture explanation + diagram
-    ├── networking-explained.md # VPC, subnets, IGW, NAT, CIDR
-    ├── autoscaling-explained.md# ASG, Launch Templates, health checks
-    └── how-rds-works.md        # RDS, private subnets, connection strings
+    ├── architecture.md         ← Full architecture explanation
+    ├── networking-explained.md ← VPC, subnets, IGW, NAT, CIDR
+    ├── autoscaling-explained.md← ASG, Launch Templates, health checks
+    └── how-rds-works.md        ← RDS, private subnets, connection strings
 ```
-

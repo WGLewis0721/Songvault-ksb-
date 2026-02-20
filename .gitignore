@@ -1,13 +1,14 @@
+# IMPORTANT: terraform.tfvars contains your database password.
+# It is excluded from git intentionally. Never remove it from this file.
+
 # Terraform state and sensitive files
+terraform/terraform.tfvars
 terraform/.terraform/
 terraform/.terraform.lock.hcl
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
 terraform/*.tfstate
 terraform/*.tfstate.*
-
-# Never commit a tfvars file that contains real passwords
-# (the placeholder terraform.tfvars is safe to commit)
 
 # Python
 __pycache__/
@@ -21,6 +22,7 @@ build/
 .venv/
 venv/
 env/
+.env
 
 # OS
 .DS_Store

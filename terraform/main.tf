@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------
 # terraform/main.tf
-# Root configuration: declares the Terraform version constraint and the AWS
-# provider so every other file in this directory can use AWS resources.
+# This is the entry point for Terraform. It tells Terraform which version
+# to use and which cloud provider to connect to.
 # ---------------------------------------------------------------------------
 
 terraform {
@@ -15,8 +15,8 @@ terraform {
   }
 }
 
-# Configure the AWS provider to deploy resources into the region specified by
-# the aws_region variable (default: us-east-1).
+# This tells Terraform to build everything in the AWS region you specify in
+# variables.tf. Default is us-east-1 (Northern Virginia).
 provider "aws" {
   region = var.aws_region
 }

@@ -7,7 +7,7 @@
   <style>
     body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
     label { display: block; margin-top: 14px; font-weight: bold; }
-    input[type="text"], input[type="number"], textarea, select {
+    input[type="text"], input[type="number"], textarea {
       width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box;
       border: 1px solid #ccc; border-radius: 4px;
     }
@@ -26,20 +26,21 @@
     <input type="text" id="title" name="title" required placeholder="e.g. Bohemian Rhapsody" />
 
     <label for="song_key">Key</label>
-    <input type="text" id="song_key" name="song_key" placeholder="e.g. A minor" />
+    <input type="text" id="song_key" name="song_key" placeholder="e.g. G Major" />
 
     <label for="tempo_bpm">Tempo (BPM)</label>
     <input type="number" id="tempo_bpm" name="tempo_bpm" min="1" max="300" placeholder="e.g. 120" />
 
     <label for="mood">Mood</label>
-    <input type="text" id="mood" name="mood" placeholder="e.g. Energetic, Mellow, Sad" />
+    <input type="text" id="mood" name="mood" placeholder="e.g. melancholic" />
 
     <label for="duration_min">Duration (minutes)</label>
     <input type="number" id="duration_min" name="duration_min" step="0.1" min="0"
-           placeholder="e.g. 3.5 for 3 min 30 sec" />
+           placeholder="e.g. 3.5" />
 
     <label for="lyrics">Lyrics <span style="color:red">*</span></label>
-    <textarea id="lyrics" name="lyrics" required placeholder="Paste or type the full lyrics here…"></textarea>
+    <textarea id="lyrics" name="lyrics" rows="10" cols="60" required
+              placeholder="Paste or type the full lyrics here…"></textarea>
 
     <button type="submit">💾 Save Song</button>
   </form>

@@ -1,36 +1,36 @@
 # ---------------------------------------------------------------------------
 # terraform/variables.tf
-# Input variables for the SongVault stack.  Override any of these in
-# terraform.tfvars or with -var flags on the command line.
+# Input variables for the SongVault stack.  Set values in terraform.tfvars
+# (copy from terraform.tfvars.example — never commit real secrets).
 # ---------------------------------------------------------------------------
 
-# AWS region where every resource will be created.
+# The AWS region where everything gets built. us-east-1 is a good default —
+# it has the most services available and tends to be cheapest.
 variable "aws_region" {
-  description = "AWS region to deploy into"
+  description = "The AWS region where everything gets built"
   type        = string
   default     = "us-east-1"
 }
 
-# Short prefix used in every resource name so it is easy to identify SongVault
-# resources in the AWS console.
+# Used as a prefix on every resource name so you can find your stuff in the
+# AWS console. Example: songvault-vpc, songvault-alb, songvault-db
 variable "project_name" {
   description = "Short name prefix applied to every resource"
   type        = string
   default     = "songvault"
 }
 
-# PostgreSQL master username.  Must match the value app.py receives via the
-# DB_USER environment variable at runtime.
+# The username the app uses to log into the database.
 variable "db_username" {
   description = "PostgreSQL master username"
   type        = string
   default     = "songvault_user"
 }
 
-# PostgreSQL master password.  Marked sensitive so Terraform never prints it
-# in plan/apply output.  Set this in terraform.tfvars — never hard-code it here.
+# The database password. You set this in terraform.tfvars (never in this file).
+# sensitive=true means Terraform won't show it in logs or terminal output.
 variable "db_password" {
-  description = "PostgreSQL master password (sensitive)"
+  description = "PostgreSQL master password — set this in terraform.tfvars, never here"
   type        = string
   sensitive   = true
 }

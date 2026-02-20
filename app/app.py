@@ -7,23 +7,25 @@ app = Flask(__name__)
 # ---------------------------------------------------------------------------
 # Database connection helper
 # Reads connection details from environment variables so secrets never live
-# in source code.  DB_NAME and DB_USER have safe defaults for local dev.
+# in source code.  DB_HOST and DB_PASS must be set — they have no defaults
+# because connecting to the wrong database silently would be a serious bug.
 # ---------------------------------------------------------------------------
-def get_db():
+def get_conn():
     return psycopg2.connect(
-        host=os.environ.get("DB_HOST", "localhost"),
+        host=os.environ["DB_HOST"],
         dbname=os.environ.get("DB_NAME", "songvault"),
         user=os.environ.get("DB_USER", "songvault_user"),
-        password=os.environ.get("DB_PASS", ""),
+        password=os.environ["DB_PASS"],
     )
 
 
 # ---------------------------------------------------------------------------
 # init_db — creates the songs and setlist tables if they do not already exist.
-# Called once at startup so the schema is always ready before the first request.
+# Called at module load so the schema is always ready before the first request,
+# whether running directly with python or via gunicorn.
 # ---------------------------------------------------------------------------
 def init_db():
-    conn = get_db()
+    conn = get_conn()
     cur = conn.cursor()
 
     cur.execute("""
@@ -52,13 +54,17 @@ def init_db():
     conn.close()
 
 
+# Call init_db at module load so it runs for both direct execution and gunicorn.
+init_db()
+
+
 # ---------------------------------------------------------------------------
 # GET / — homepage: fetch all songs ordered by most-recently updated and
 # render them in a table so the user can see their full catalogue at a glance.
 # ---------------------------------------------------------------------------
 @app.route("/")
 def index():
-    conn = get_db()
+    conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
         SELECT id, title, song_key, tempo_bpm, mood, duration_sec
@@ -87,7 +93,7 @@ def add_song():
         duration_sec = int(float(duration_min_str) * 60) if duration_min_str else 0
         lyrics = request.form["lyrics"]
 
-        conn = get_db()
+        conn = get_conn()
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO songs (title, lyrics, song_key, tempo_bpm, mood, duration_sec)
@@ -109,11 +115,11 @@ def add_song():
 # ---------------------------------------------------------------------------
 @app.route("/setlist", methods=["GET", "POST"])
 def setlist():
-    conn = get_db()
+    conn = get_conn()
     cur = conn.cursor()
 
     if request.method == "POST":
-        # Remove all existing setlist rows before re-inserting the new selection
+        # Remove all existing setlist rows before re-inserting the new selection.
         cur.execute("DELETE FROM setlist")
         song_ids = request.form.getlist("song_ids")
         for position, song_id in enumerate(song_ids, start=1):
@@ -123,11 +129,11 @@ def setlist():
             )
         conn.commit()
 
-    # Fetch all songs for the checkbox form
+    # Fetch all songs for the checkbox form.
     cur.execute("SELECT id, title FROM songs ORDER BY title")
     all_songs = cur.fetchall()
 
-    # Fetch the current setlist with song details for the ordered display
+    # Fetch the current setlist with song details for the ordered display.
     cur.execute("""
         SELECT s.title, s.duration_sec
         FROM setlist sl
@@ -136,8 +142,8 @@ def setlist():
     """)
     current_setlist = cur.fetchall()
 
-    # Calculate total runtime in seconds
-    total_runtime = sum(row[1] or 0 for row in current_setlist)
+    # Calculate total runtime in seconds.
+    total_sec = sum(row[1] or 0 for row in current_setlist)
 
     cur.close()
     conn.close()
@@ -145,18 +151,14 @@ def setlist():
         "setlist.html",
         all_songs=all_songs,
         current_setlist=current_setlist,
-        total_runtime=total_runtime,
+        total_sec=total_sec,
     )
 
 
 # ---------------------------------------------------------------------------
-# Entry point — initialise the database schema then start the development
-# server.  In production, gunicorn calls app:app directly; init_db() is still
-# executed because it runs at module import time via the if-block below.
+# Entry point — when run directly (python app.py) start the dev server.
+# In production gunicorn imports this module and uses the `app` object directly.
+# init_db() above already ran at import time so the schema is ready either way.
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    init_db()
-    app.run(host="0.0.0.0", port=8080)
-else:
-    # Also initialise when loaded by gunicorn
-    init_db()
+    app.run(host="0.0.0.0", port=8080, debug=False)

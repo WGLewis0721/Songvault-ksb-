@@ -7,10 +7,6 @@
   <style>
     body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }
     nav a { margin-right: 16px; text-decoration: none; color: #0066cc; font-weight: bold; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
-    th { background: #f0f0f0; }
-    tr:nth-child(even) { background: #fafafa; }
     h1 { color: #333; }
   </style>
 </head>
@@ -23,7 +19,7 @@
 
   <h2>All Songs</h2>
   {% if songs %}
-  <table>
+  <table border="1" cellpadding="6">
     <thead>
       <tr>
         <th>Title</th>

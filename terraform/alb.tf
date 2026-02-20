@@ -1,31 +1,43 @@
-# ---------------------------------------------------------------------------
-# terraform/alb.tf
-# Application Load Balancer (ALB) — the public-facing entry point for all
-# user traffic.  It distributes requests across the EC2 instances and performs
-# health checks so only healthy instances receive traffic.
-# ---------------------------------------------------------------------------
+# alb.tf
+# ======
+# ALB = Application Load Balancer.
+# It sits in front of all our EC2 instances and distributes traffic between them.
+# When you open the app URL in your browser, you're hitting the ALB.
+# The ALB picks a healthy EC2 instance and forwards your request to it.
+#
+# Components:
+#   aws_lb            = The load balancer itself
+#   aws_lb_target_group = The list of EC2 instances to send traffic to
+#   aws_lb_listener   = The rule: "when traffic arrives on port 80, forward to the target group"
 
 # ---------------------------------------------------------------------------
-# ALB — an internet-facing load balancer deployed across both public subnets.
-# "application" type supports HTTP/HTTPS and path-based routing rules.
+# The ALB is internet-facing (internal=false) so users can reach it from their
+# browser. It lives in public subnets in both AZs. AWS automatically routes
+# around AZ failures.
 # ---------------------------------------------------------------------------
 resource "aws_lb" "main" {
   name               = "${var.project_name}-alb"
-  internal           = false            # internet-facing
+  internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
   subnets            = [aws_subnet.public_1.id, aws_subnet.public_2.id]
 
   tags = {
-    Name = "${var.project_name}-alb"
+    Name      = "${var.project_name}-alb"
+    Project   = var.project_name
+    Owner     = "student"
+    ManagedBy = "terraform"
   }
 }
 
 # ---------------------------------------------------------------------------
-# Target Group — the pool of EC2 instances the ALB will send traffic to.
-# Health checks on port 8080 at path "/" determine which instances are healthy.
+# The target group is the list of EC2 instances the ALB sends traffic to.
+# Health check: every 30 seconds, the ALB does GET / on port 8080.
+# If an instance responds with HTTP 200, it's healthy.
+# If it fails 3 times in a row, the ALB stops sending it traffic.
+# The ASG sees the instance is unhealthy and replaces it automatically.
 # ---------------------------------------------------------------------------
-resource "aws_lb_target_group" "main" {
+resource "aws_lb_target_group" "app" {
   name     = "${var.project_name}-tg"
   port     = 8080
   protocol = "HTTP"
@@ -34,16 +46,26 @@ resource "aws_lb_target_group" "main" {
   health_check {
     path                = "/"
     port                = "8080"
-    healthy_threshold   = 2  # 2 consecutive successes = healthy
-    unhealthy_threshold = 3  # 3 consecutive failures  = unhealthy
-    interval            = 30 # check every 30 seconds
+    protocol            = "HTTP"
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    interval            = 30
+    timeout             = 5
+    matcher             = "200"
+  }
+
+  tags = {
+    Name      = "${var.project_name}-tg"
+    Project   = var.project_name
+    Owner     = "student"
+    ManagedBy = "terraform"
   }
 }
 
 # ---------------------------------------------------------------------------
-# Listener — listens on port 80 (HTTP) and forwards every request to the
-# target group defined above.  In production you would add a port-443 listener
-# with an ACM certificate for HTTPS.
+# The listener is the rule that says: when traffic arrives on port 80,
+# forward it to the target group. This is the glue between the ALB and
+# our EC2 instances.
 # ---------------------------------------------------------------------------
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
@@ -52,6 +74,6 @@ resource "aws_lb_listener" "http" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.main.arn
+    target_group_arn = aws_lb_target_group.app.arn
   }
 }
