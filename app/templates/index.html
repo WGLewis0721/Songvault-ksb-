@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SongVault 🎵</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    nav a { margin-right: 16px; text-decoration: none; color: #0066cc; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+    th { background: #f0f0f0; }
+    tr:nth-child(even) { background: #fafafa; }
+    h1 { color: #333; }
+  </style>
+</head>
+<body>
+  <h1>SongVault 🎵</h1>
+  <nav>
+    <a href="/add">➕ Add Song</a>
+    <a href="/setlist">🎶 Setlist</a>
+  </nav>
+
+  <h2>All Songs</h2>
+  {% if songs %}
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Key</th>
+        <th>Tempo (BPM)</th>
+        <th>Mood</th>
+        <th>Duration (sec)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for id, title, song_key, tempo_bpm, mood, duration_sec in songs %}
+      <tr>
+        <td>{{ title }}</td>
+        <td>{{ song_key or '—' }}</td>
+        <td>{{ tempo_bpm or '—' }}</td>
+        <td>{{ mood or '—' }}</td>
+        <td>{{ duration_sec or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No songs yet. <a href="/add">Add your first song!</a></p>
+  {% endif %}
+</body>
+</html>
