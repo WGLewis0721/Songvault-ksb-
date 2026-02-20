@@ -24,9 +24,11 @@
 
 ## What SongVault Does
 
+
 - Store song lyrics with metadata: key, tempo, mood, and duration
 - Build setlists with automatic total runtime calculation
 - Works from any device — add songs from your phone before a gig
+<img width="955" height="635" alt="Screenshot 2026-02-20 at 12 45 26 PM" src="https://github.com/user-attachments/assets/560c409f-0ee4-4423-b343-0c37996b77da" />
 
 **App stack:**
 - **Flask** — a lightweight Python web framework; handles HTTP requests and renders HTML pages
