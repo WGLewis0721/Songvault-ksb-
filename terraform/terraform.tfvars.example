@@ -1,0 +1,14 @@
+# ================================================================
+# SETUP INSTRUCTIONS:
+# 1. Copy this file:  cp terraform.tfvars.example terraform.tfvars
+# 2. Edit terraform.tfvars and replace the password below
+# 3. terraform.tfvars is in .gitignore — it will NOT be committed to git
+#
+# WHY: terraform.tfvars is where you put real secrets.
+# terraform.tfvars.example is a safe template you CAN commit.
+# ================================================================
+
+aws_region   = "us-east-1"
+project_name = "songvault"
+db_username  = "songvault_user"
+db_password  = "CHANGE_ME_min8chars_useLettersAndNumbers1!"
