@@ -8,6 +8,10 @@
 
 ---
 
+> **New to GitHub?** No account yet? Start here → [GITHUB_SETUP.md](GITHUB_SETUP.md) — it walks you through creating an account, forking this repo, and cloning it to your computer before anything else.
+
+---
+
 ## What This Proves (Resume-Focused)
 
 - ✅ **Infrastructure as Code** — entire AWS environment provisioned with Terraform; destroy and rebuild in one command
@@ -69,7 +73,8 @@ The database is never reachable from the internet.
 
 ## Quick Start
 
-> **First time?** Read [WALKTHROUGH.md](WALKTHROUGH.md) — it explains every step with expected output and common errors.
+> **New to GitHub?** Start with [GITHUB_SETUP.md](GITHUB_SETUP.md) first — it covers creating an account and getting the code onto your computer.
+> **First time deploying?** Read [WALKTHROUGH.md](WALKTHROUGH.md) — it explains every step with expected output and common errors.
 
 1. **Install prerequisites**: AWS CLI, Terraform ≥ 1.5.0, Git ([details in WALKTHROUGH.md](WALKTHROUGH.md#phase-1--install-the-tools))
 
@@ -162,6 +167,7 @@ terraform destroy
 ```
 .
 ├── README.md               ← You are here
+├── GITHUB_SETUP.md         ← Start here if you're new to GitHub (no account yet)
 ├── WALKTHROUGH.md          ← Step-by-step guide for first-time AWS users
 ├── .gitignore              ← Excludes terraform.tfvars and secrets
 ├── app/
