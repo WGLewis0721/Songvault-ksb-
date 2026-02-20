@@ -20,16 +20,19 @@
 
 ## What SongVault Does
 
-SongVault is a web application for musicians and songwriters. It lets you store song
-lyrics along with metadata (key, tempo, mood, duration) and build setlists with
-automatic total runtime calculation. Add songs from your phone before a gig, build
-a setlist, and know exactly how long your set runs.
+- Store song lyrics with metadata: key, tempo, mood, and duration
+- Build setlists with automatic total runtime calculation
+- Works from any device — add songs from your phone before a gig
 
-The application itself is deliberately simple — a Flask app backed by PostgreSQL.
-What makes this a portfolio-worthy project is the AWS architecture pattern behind it:
-the same ALB + ASG + RDS pattern used by real companies to serve millions of requests
-daily. Every engineering decision (private subnets, security group chaining, IAM
-roles, managed database) reflects production-grade thinking.
+**App stack:**
+- **Flask** — a lightweight Python web framework; handles HTTP requests and renders HTML pages
+- **PostgreSQL** — relational database; stores songs and setlists
+- **Gunicorn** — WSGI server; runs Flask in production on EC2
+
+**AWS infrastructure (ALB → EC2 → RDS):**
+- **ALB** routes internet traffic to app servers
+- **ASG** manages EC2 instances; replaces failed ones automatically across two AZs
+- **RDS** hosts PostgreSQL in a private subnet; never reachable from the internet
 
 ---
 

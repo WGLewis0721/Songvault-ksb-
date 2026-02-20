@@ -9,23 +9,19 @@ look like. If something can go wrong, I'll tell you what to watch for.
 
 ## Phase 0 — Understanding What You Are Building (read before touching a terminal)
 
-**What the app is**: SongVault is a Flask web application for musicians and
-songwriters to store their lyrics, track tempo and key, and build setlists with
-automatic runtime calculation. It's a simple CRUD app — but the AWS infrastructure
-behind it is production-pattern.
+**The app:**
+- SongVault stores song lyrics, metadata (key, tempo, mood), and builds setlists with runtime totals
+- Built with **Flask** (a lightweight Python web framework), **PostgreSQL** (database), and **Gunicorn** (production server)
+- Flask receives HTTP requests, queries PostgreSQL, and returns HTML pages — that's the full app
 
-**What AWS services you are using**:
-- **VPC**: your private isolated network in AWS — think of it as your own data centre floor.
-- **ALB (Application Load Balancer)**: the public entry point. Users connect here; it distributes traffic to your servers.
-- **ASG (Auto Scaling Group)**: manages a fleet of EC2 servers. Replaces broken ones automatically.
-- **RDS (Relational Database Service)**: managed PostgreSQL. AWS runs the database server; you just connect to it.
-- **NAT Gateway**: lets private servers download packages without exposing them to the internet.
+**AWS services:**
+- **VPC** — your private isolated network in AWS
+- **ALB** — public entry point; distributes traffic to your EC2 servers
+- **ASG** — manages EC2 instances; replaces failed ones automatically
+- **RDS** — managed PostgreSQL; AWS handles the database server, you just connect to it
+- **NAT Gateway** — lets private EC2 instances download packages without exposing them to the internet
 
-**What Terraform does**: Terraform is a tool that turns your `.tf` config files into real
-AWS infrastructure. Instead of clicking through the AWS console, you write code that
-describes what you want, and Terraform builds it. This makes your infrastructure
-reproducible — you can destroy everything and rebuild it exactly the same way with
-one command.
+**Terraform** — turns `.tf` config files into real AWS infrastructure; reproducible with one command
 
 ---
 
