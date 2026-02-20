@@ -147,7 +147,7 @@ APPEOF
 cat > /opt/songvault/app/requirements.txt <<'REQEOF'
 flask==3.0.0
 psycopg2-binary==2.9.9
-gunicorn==21.2.0
+gunicorn==22.0.0
 REQEOF
 
 # ---------------------------------------------------------------------------
