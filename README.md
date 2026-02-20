@@ -105,6 +105,27 @@ The database is never reachable from the internet.
 
 ---
 
+## Stop the Bill
+
+This project costs about $3–4 per day while it is running.
+When you are done for the day, tear it down:
+
+```bash
+bash scripts/teardown.sh
+```
+
+Your data will be deleted but that is fine. It is Terraform.
+Rebuild it fresh anytime:
+
+```bash
+cd terraform && terraform apply
+```
+
+Get in the habit of doing this every time. It takes 10 minutes to rebuild.
+Forgetting costs $25–30 a week.
+
+---
+
 ## Prove High Availability
 
 This is the most important test. *"Companies pay cloud engineers to build this."*

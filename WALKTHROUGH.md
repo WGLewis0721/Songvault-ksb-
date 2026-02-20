@@ -9,6 +9,33 @@ look like. If something can go wrong, I'll tell you what to watch for.
 
 ## Phase 0 — Understanding What You Are Building (read before touching a terminal)
 
+### BEFORE YOU SPEND A DOLLAR — READ THIS
+
+This project costs real money while it is running. About $3–4 a day.
+That does not sound like much but if you build it on a Monday and
+forget about it, by Sunday you have a $25 bill for nothing.
+
+The rule is simple: when you are done for the day, run:
+
+```bash
+bash scripts/teardown.sh
+```
+
+It deletes everything. Your data goes with it. That is fine.
+This is infrastructure as code. You can rebuild the whole thing
+in 10 minutes anytime you want with one command:
+
+```bash
+cd terraform && terraform apply
+```
+
+This is actually the point. The fact that you can destroy and
+rebuild your entire cloud environment in minutes is exactly what
+makes Terraform valuable. You are not losing anything.
+You are proving the skill.
+
+---
+
 **The app:**
 - SongVault stores song lyrics, metadata (key, tempo, mood), and builds setlists with runtime totals
 - Built with **Flask** (a lightweight Python web framework), **PostgreSQL** (database), and **Gunicorn** (production server)
