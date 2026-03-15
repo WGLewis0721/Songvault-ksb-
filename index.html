@@ -3,235 +3,428 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SongVault 🎵</title>
+  <title>SongVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f2f5;
-      color: #333;
-      min-height: 100vh;
+    :root {
+      --bg:         #0f0f0f;
+      --surface:    #1a1a1a;
+      --border:     #2a2a2a;
+      --border-dim: #1c1c1c;
+      --gold:       #c9a84c;
+      --gold-hover: #d4b860;
+      --text:       #ffffff;
+      --text-muted: #888888;
+      --text-dim:   #555555;
+      --green:      #4caf50;
+      --del-text:   #e55555;
+      --del-bg:     rgba(200, 60, 60, 0.12);
+      --serif:      'Playfair Display', Georgia, 'Times New Roman', serif;
+      --mono:       'Space Mono', 'Courier New', monospace;
     }
 
+    body {
+      font-family: var(--mono);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
     header {
-      background: #1a1a2e;
-      color: #fff;
-      padding: 18px 32px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
-    header h1 { font-size: 1.6rem; letter-spacing: 0.5px; }
+    .logo {
+      font-family: var(--serif);
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--gold);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    nav { display: flex; gap: 4px; align-items: center; }
 
     nav a {
-      color: #a0c4ff;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
       text-decoration: none;
-      font-weight: bold;
-      margin-left: 20px;
-      font-size: 0.95rem;
-      transition: color 0.2s;
+      padding: 7px 16px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      transition: color 0.15s, border-color 0.15s;
     }
-    nav a:hover { color: #fff; }
+    nav a:hover { color: var(--text); }
+    nav a.active { color: var(--gold); border-color: var(--gold); }
 
-    .demo-banner {
-      background: #fff3cd;
-      border-left: 4px solid #ffc107;
-      padding: 12px 24px;
-      font-size: 0.9rem;
-      color: #555;
+    /* ── STATUS BAR ── */
+    .status-bar {
+      background: var(--bg);
+      padding: 18px 40px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #1a1a1a;
     }
-    .demo-banner strong { color: #333; }
 
+    .s-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.65rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border: 1px solid #333;
+      border-radius: 20px;
+      padding: 6px 14px;
+    }
+
+    .s-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    /* ── MAIN ── */
     main {
-      max-width: 960px;
-      margin: 32px auto;
-      padding: 0 20px;
+      flex: 1;
+      padding: 56px 40px 60px;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
     }
 
-    .section-header {
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 48px;
+      gap: 20px;
+    }
+
+    h1 {
+      font-family: var(--serif);
+      font-size: 3.8rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .page-subtitle {
+      font-size: 0.7rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .btn-gold {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 700;
+      background: var(--gold);
+      color: #111;
+      border: none;
+      border-radius: 4px;
+      padding: 14px 28px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.15s, transform 0.1s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-gold:hover  { background: var(--gold-hover); }
+    .btn-gold:active { transform: scale(0.97); }
+
+    /* ── TABLE ── */
+    .song-table { width: 100%; border-collapse: collapse; }
+
+    .song-table thead tr { border-bottom: 1px solid #222; }
+
+    .song-table th {
+      font-size: 0.62rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 400;
+      text-align: left;
+      padding: 0 0 18px 0;
+    }
+    .song-table th:not(:first-child) { padding-left: 32px; }
+    .song-table th.col-dur { text-align: right; padding-left: 0; }
+
+    .song-table tbody tr { border-bottom: 1px solid var(--border-dim); }
+    .song-table tbody tr:hover { background: rgba(255,255,255,0.015); }
+
+    .song-table td {
+      padding: 24px 0;
+      vertical-align: middle;
+    }
+    .song-table td:not(:first-child) { padding-left: 32px; }
+    .song-table td.col-dur { text-align: right; padding-left: 0; }
+
+    .song-title {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      font-weight: 400;
+      color: var(--text);
+    }
+
+    /* Key badges */
+    .k-badge {
+      display: inline-block;
+      font-size: 0.62rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+    .k-a { border-color: #9a7322; color: #c9a84c; }
+    .k-b { border-color: #7a5e1a; color: #a88030; }
+    .k-c { border-color: #a08818; color: #d4b030; }
+    .k-d { border-color: #6a7a18; color: #96ad22; }
+    .k-e { border-color: #5a6a18; color: #7a9a20; }
+    .k-f { border-color: #5a6818; color: #7a9820; }
+    .k-g { border-color: #9a9018; color: #ccc020; }
+    .k-x { border-color: #555;    color: #999;    }
+
+    /* Mood badges */
+    .m-badge {
+      display: inline-block;
+      font-size: 0.62rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 5px 13px;
+      border-radius: 20px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .m-melancholic { background: #1a2340; color: #6b8dd6; }
+    .m-upbeat      { background: #132a1a; color: #4caf6a; }
+    .m-hopeful     { background: #102030; color: #4a9acc; }
+    .m-dark        { background: #2a1510; color: #bf6050; }
+    .m-epic        { background: #1e1030; color: #9a6dc8; }
+    .m-haunting    { background: #0e2020; color: #4aadad; }
+    .m-nostalgic   { background: #1e1c08; color: #b0a840; }
+    .m-x           { background: #222;    color: #888;    }
+
+    .tempo-val { font-size: 0.88rem; color: #ccc; letter-spacing: 0.5px; }
+    .dur-val   { font-size: 0.88rem; color: var(--text-muted); }
+
+    /* Hover-reveal delete */
+    .row-del { opacity: 0; transition: opacity 0.15s; }
+    .song-table tbody tr:hover .row-del { opacity: 1; }
+    .btn-del {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 0.75rem;
+      padding: 3px 7px;
+      border-radius: 3px;
+      margin-left: 10px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .btn-del:hover { color: var(--del-text); background: var(--del-bg); }
+
+    .cell-empty { color: var(--text-dim); }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 100px 20px;
+    }
+    .empty .icon { font-size: 3rem; margin-bottom: 20px; opacity: 0.3; }
+    .empty p {
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 32px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 0 40px;
+      height: 48px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .section-header h2 { font-size: 1.3rem; color: #1a1a2e; }
-
-    .btn {
-      display: inline-block;
-      padding: 9px 20px;
-      border-radius: 5px;
-      border: none;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: bold;
-      text-decoration: none;
-      transition: background 0.2s, transform 0.1s;
-    }
-    .btn:active { transform: scale(0.97); }
-    .btn-primary { background: #0066cc; color: #fff; }
-    .btn-primary:hover { background: #0052a3; }
-    .btn-danger  { background: #dc3545; color: #fff; }
-    .btn-danger:hover  { background: #b02a37; }
-
-    /* Song table */
-    .song-table-wrap { overflow-x: auto; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
     }
 
-    thead { background: #1a1a2e; color: #fff; }
-    th, td {
-      padding: 12px 14px;
-      text-align: left;
-      font-size: 0.9rem;
-      border-bottom: 1px solid #e8e8e8;
+    .f-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.65rem;
+      letter-spacing: 0.5px;
+      color: #555;
+      padding-right: 24px;
+      margin-right: 24px;
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
     }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #f5f8ff; }
-    th { font-weight: 600; letter-spacing: 0.3px; }
+    .f-item:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+    .f-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
 
-    .tag {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 0.78rem;
-      font-weight: bold;
+    @media (max-width: 768px) {
+      header       { padding: 0 20px; }
+      .status-bar  { padding: 14px 20px; }
+      main         { padding: 36px 20px 40px; }
+      h1           { font-size: 2.6rem; }
+      footer       { padding: 0 20px; overflow-x: auto; }
+      .song-table th:not(:first-child),
+      .song-table td:not(:first-child) { padding-left: 16px; }
     }
-    .tag-mood { background: #e8f4fd; color: #1565c0; }
-    .tag-key  { background: #f3e5f5; color: #6a1b9a; }
-
-    .empty-state {
-      background: #fff;
-      border-radius: 8px;
-      padding: 48px 24px;
-      text-align: center;
-      color: #888;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    }
-    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
-    .empty-state p { margin-bottom: 20px; }
-
-    .action-cell { white-space: nowrap; }
-    .btn-sm {
-      padding: 4px 10px;
-      font-size: 0.78rem;
-    }
-
-    footer {
-      text-align: center;
-      padding: 28px 16px;
-      color: #aaa;
-      font-size: 0.82rem;
-    }
-    footer a { color: #0066cc; }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>🎵 SongVault</h1>
+  <a href="index.html" class="logo">SongVault</a>
   <nav>
-    <a href="add_song.html">➕ Add Song</a>
-    <a href="setlist.html">🎶 Setlist</a>
+    <a href="index.html" class="active">Library</a>
+    <a href="add_song.html">Add Song</a>
+    <a href="setlist.html">Setlist</a>
   </nav>
 </header>
 
-<div class="demo-banner">
-  <strong>📌 Live Preview (MVP):</strong> This is a static demo running entirely in your browser — songs are stored in <code>localStorage</code>.
-  The real app runs on AWS (Flask + RDS PostgreSQL). See the <a href="https://github.com/WGLewis0721/Songvault-ksb-">README</a> to deploy it.
+<div class="status-bar">
+  <span class="s-pill"><span class="s-dot"></span>AWS ALB</span>
+  <span class="s-pill"><span class="s-dot"></span>Auto Scaling (2 Instances)</span>
+  <span class="s-pill"><span class="s-dot"></span>RDS PostgreSQL</span>
+  <span class="s-pill">US-East-1 / 2 AZs</span>
+  <span class="s-pill">Terraform</span>
 </div>
 
 <main>
-  <div class="section-header">
-    <h2>All Songs</h2>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <button class="btn btn-danger btn-sm" id="clearAllBtn" style="display:none;" onclick="clearAll()">🗑 Clear All</button>
-      <a href="add_song.html" class="btn btn-primary">➕ Add Song</a>
+  <div class="page-header">
+    <div>
+      <h1>Song Library</h1>
+      <p class="page-subtitle" id="songCount">Loading…</p>
     </div>
+    <a href="add_song.html" class="btn-gold">+ Add Song</a>
   </div>
-
-  <div class="song-table-wrap">
-    <div id="content"></div>
-  </div>
+  <div id="content"></div>
 </main>
 
 <footer>
-  SongVault MVP &mdash; static preview only &nbsp;|&nbsp;
-  <a href="https://github.com/WGLewis0721/Songvault-ksb-" target="_blank">GitHub Repo</a>
+  <div class="f-item"><span class="f-dot"></span>App running</div>
+  <div class="f-item">Demo: GitHub Pages</div>
+  <div class="f-item">localStorage only</div>
+  <div class="f-item">No database</div>
+  <div class="f-item">static · browser</div>
 </footer>
 
 <script src="songvault-mvp.js"></script>
 <script>
+  function keyClass(k) {
+    if (!k) return "k-x";
+    switch (k.trim()[0].toUpperCase()) {
+      case "A": return "k-a";
+      case "B": return "k-b";
+      case "C": return "k-c";
+      case "D": return "k-d";
+      case "E": return "k-e";
+      case "F": return "k-f";
+      case "G": return "k-g";
+      default:  return "k-x";
+    }
+  }
+
+  function moodClass(m) {
+    if (!m) return "m-x";
+    const s = m.toLowerCase();
+    if (s.includes("melanch"))  return "m-melancholic";
+    if (s.includes("upbeat"))   return "m-upbeat";
+    if (s.includes("hopeful"))  return "m-hopeful";
+    if (s.includes("dark"))     return "m-dark";
+    if (s.includes("epic"))     return "m-epic";
+    if (s.includes("haunt"))    return "m-haunting";
+    if (s.includes("nostalg"))  return "m-nostalgic";
+    return "m-x";
+  }
+
   function deleteSong(id) {
     if (!confirm("Delete this song?")) return;
     const songs = svLoadSongs().filter(s => s.id !== id);
     svSaveSongs(songs);
-    // Also clean setlist
-    const sl = JSON.parse(localStorage.getItem("sv_setlist") || "[]")
-                 .filter(sid => sid !== id);
+    const sl = JSON.parse(localStorage.getItem("sv_setlist") || "[]").filter(sid => sid !== id);
     localStorage.setItem("sv_setlist", JSON.stringify(sl));
-    render();
-  }
-
-  function clearAll() {
-    if (!confirm("Delete ALL songs and reset to sample data?")) return;
-    localStorage.removeItem("sv_songs");
-    localStorage.removeItem("sv_setlist");
     render();
   }
 
   function render() {
     const songs = svLoadSongs();
     const content = document.getElementById("content");
-    const clearBtn = document.getElementById("clearAllBtn");
-    clearBtn.style.display = songs.length ? "inline-block" : "none";
+    document.getElementById("songCount").textContent =
+      `${songs.length} song${songs.length !== 1 ? "s" : ""} \u2014 sorted by recent`;
 
     if (!songs.length) {
       content.innerHTML = `
-        <div class="empty-state">
+        <div class="empty">
           <div class="icon">🎵</div>
-          <p>No songs yet.</p>
-          <a href="add_song.html" class="btn btn-primary">Add your first song!</a>
+          <p>No songs yet</p>
+          <a href="add_song.html" class="btn-gold">+ Add your first song</a>
         </div>`;
       return;
     }
 
     content.innerHTML = `
-      <table>
+      <table class="song-table">
         <thead>
           <tr>
-            <th>#</th>
             <th>Title</th>
             <th>Key</th>
-            <th>Tempo (BPM)</th>
+            <th>Tempo</th>
             <th>Mood</th>
-            <th>Duration</th>
-            <th></th>
+            <th class="col-dur">Duration</th>
           </tr>
         </thead>
         <tbody>
-          ${songs.map((s, i) => `
+          ${songs.map(s => `
             <tr>
-              <td style="color:#aaa;font-size:.8rem">${i + 1}</td>
-              <td><strong>${svEscHtml(s.title)}</strong></td>
-              <td>${s.song_key ? `<span class="tag tag-key">${svEscHtml(s.song_key)}</span>` : "—"}</td>
-              <td>${s.tempo_bpm ? `${s.tempo_bpm} BPM` : "—"}</td>
-              <td>${s.mood ? `<span class="tag tag-mood">${svEscHtml(s.mood)}</span>` : "—"}</td>
-              <td>${svFmtDuration(s.duration_sec)}</td>
-              <td class="action-cell">
-                <button class="btn btn-danger btn-sm" onclick="deleteSong(${s.id})">🗑</button>
+              <td><span class="song-title">${svEscHtml(s.title)}</span></td>
+              <td>${s.song_key
+                ? `<span class="k-badge ${keyClass(s.song_key)}">${svEscHtml(s.song_key)}</span>`
+                : `<span class="cell-empty">—</span>`}</td>
+              <td>${s.tempo_bpm
+                ? `<span class="tempo-val">${s.tempo_bpm} bpm</span>`
+                : `<span class="cell-empty">—</span>`}</td>
+              <td>${s.mood
+                ? `<span class="m-badge ${moodClass(s.mood)}">${svEscHtml(s.mood)}</span>`
+                : `<span class="cell-empty">—</span>`}</td>
+              <td class="col-dur">
+                <span class="dur-val">${svFmtDuration(s.duration_sec)}</span>
+                <button class="btn-del row-del" onclick="deleteSong(${s.id})" title="Delete song">✕</button>
               </td>
             </tr>`).join("")}
         </tbody>

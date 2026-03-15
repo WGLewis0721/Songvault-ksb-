@@ -3,171 +3,277 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Add Song — SongVault 🎵</title>
+  <title>Add Song — SongVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f2f5;
-      color: #333;
-      min-height: 100vh;
+    :root {
+      --bg:         #0f0f0f;
+      --surface:    #1a1a1a;
+      --surface2:   #161616;
+      --border:     #2a2a2a;
+      --gold:       #c9a84c;
+      --gold-hover: #d4b860;
+      --text:       #ffffff;
+      --text-muted: #888888;
+      --text-dim:   #555555;
+      --green:      #4caf50;
+      --serif:      'Playfair Display', Georgia, 'Times New Roman', serif;
+      --mono:       'Space Mono', 'Courier New', monospace;
     }
 
+    body {
+      font-family: var(--mono);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
     header {
-      background: #1a1a2e;
-      color: #fff;
-      padding: 18px 32px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
-    header h1 { font-size: 1.6rem; letter-spacing: 0.5px; }
+
+    .logo {
+      font-family: var(--serif);
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--gold);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    nav { display: flex; gap: 4px; align-items: center; }
+
     nav a {
-      color: #a0c4ff;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
       text-decoration: none;
-      font-weight: bold;
-      margin-left: 20px;
-      font-size: 0.95rem;
-      transition: color 0.2s;
+      padding: 7px 16px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      transition: color 0.15s, border-color 0.15s;
     }
-    nav a:hover { color: #fff; }
+    nav a:hover { color: var(--text); }
+    nav a.active { color: var(--gold); border-color: var(--gold); }
 
-    .demo-banner {
-      background: #fff3cd;
-      border-left: 4px solid #ffc107;
-      padding: 12px 24px;
-      font-size: 0.9rem;
-      color: #555;
-    }
-    .demo-banner strong { color: #333; }
-
+    /* ── MAIN ── */
     main {
-      max-width: 640px;
-      margin: 36px auto;
-      padding: 0 20px 40px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 10px;
-      padding: 32px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-    }
-
-    h2 { margin-bottom: 24px; color: #1a1a2e; font-size: 1.25rem; }
-
-    .form-group { margin-bottom: 18px; }
-
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 5px;
-      font-size: 0.9rem;
-      color: #444;
-    }
-    .required { color: #dc3545; }
-
-    input[type="text"],
-    input[type="number"],
-    textarea,
-    select {
+      flex: 1;
+      padding: 56px 40px 60px;
+      max-width: 720px;
       width: 100%;
-      padding: 9px 12px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 0.95rem;
-      font-family: inherit;
-      transition: border-color 0.2s;
+      margin: 0 auto;
     }
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      border-color: #0066cc;
-      box-shadow: 0 0 0 3px rgba(0,102,204,0.15);
-    }
-    textarea { height: 160px; resize: vertical; }
 
-    .form-row { display: flex; gap: 14px; flex-wrap: wrap; }
-    .form-row .form-group { flex: 1; min-width: 120px; }
-
-    .btn {
-      padding: 10px 24px;
-      border-radius: 5px;
-      border: none;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: bold;
-      text-decoration: none;
-      display: inline-block;
-      transition: background 0.2s, transform 0.1s;
+    h1 {
+      font-family: var(--serif);
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 10px;
     }
-    .btn:active { transform: scale(0.97); }
-    .btn-primary { background: #0066cc; color: #fff; }
-    .btn-primary:hover { background: #0052a3; }
-    .btn-secondary {
-      background: #f0f2f5;
-      color: #555;
-      border: 1px solid #ccc;
-    }
-    .btn-secondary:hover { background: #e2e6ea; }
 
-    .form-actions {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-top: 24px;
+    .page-subtitle {
+      font-size: 0.7rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 40px;
+    }
+
+    /* ── FORM CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 36px;
     }
 
     #successMsg {
       display: none;
-      background: #d4edda;
-      border: 1px solid #c3e6cb;
+      background: #0d2a18;
+      border: 1px solid #1e5a30;
       border-radius: 6px;
       padding: 14px 20px;
-      color: #155724;
-      margin-bottom: 20px;
-      font-weight: bold;
+      color: #4caf6a;
+      margin-bottom: 28px;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+    }
+    #successMsg a { color: var(--gold); }
+
+    .form-group { margin-bottom: 24px; }
+
+    label {
+      display: block;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 8px;
     }
 
-    .helper { font-size: 0.78rem; color: #888; margin-top: 3px; }
+    .required { color: #bf6050; }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.9rem;
+      font-family: var(--mono);
+      color: var(--text);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input[type="text"]::placeholder,
+    input[type="number"]::placeholder,
+    textarea::placeholder { color: var(--text-dim); }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
+    }
+    textarea { height: 160px; resize: vertical; }
+
+    .form-row { display: flex; gap: 16px; flex-wrap: wrap; }
+    .form-row .form-group { flex: 1; min-width: 140px; }
+
+    .helper {
+      font-size: 0.65rem;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      margin-top: 5px;
+    }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .btn-gold {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 700;
+      background: var(--gold);
+      color: #111;
+      border: none;
+      border-radius: 4px;
+      padding: 13px 28px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-gold:hover  { background: var(--gold-hover); }
+    .btn-gold:active { transform: scale(0.97); }
+
+    .btn-ghost {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 12px 20px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--text-dim); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 0 40px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+    }
+
+    .f-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.65rem;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      padding-right: 24px;
+      margin-right: 24px;
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .f-item:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+    .f-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+    @media (max-width: 768px) {
+      header { padding: 0 20px; }
+      main   { padding: 36px 20px 40px; }
+      h1     { font-size: 2.2rem; }
+      .card  { padding: 24px 20px; }
+      footer { padding: 0 20px; overflow-x: auto; }
+    }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>🎵 SongVault</h1>
+  <a href="index.html" class="logo">SongVault</a>
   <nav>
-    <a href="index.html">📋 All Songs</a>
-    <a href="setlist.html">🎶 Setlist</a>
+    <a href="index.html">Library</a>
+    <a href="add_song.html" class="active">Add Song</a>
+    <a href="setlist.html">Setlist</a>
   </nav>
 </header>
 
-<div class="demo-banner">
-  <strong>📌 Live Preview (MVP):</strong> Songs are saved to your browser's <code>localStorage</code>.
-  The real app uses AWS + PostgreSQL. See the <a href="https://github.com/WGLewis0721/Songvault-ksb-">README</a>.
-</div>
-
 <main>
-  <div class="card">
-    <h2>➕ Add a New Song</h2>
+  <h1>Add a Song</h1>
+  <p class="page-subtitle">Fill in the details below — title and lyrics are required</p>
 
-    <div id="successMsg">✅ Song saved! <a href="index.html">View all songs →</a></div>
+  <div class="card">
+    <div id="successMsg">✓ Song saved! &nbsp;<a href="index.html">View library →</a></div>
 
     <div class="form-group">
       <label for="title">Title <span class="required">*</span></label>
-      <input type="text" id="title" placeholder="e.g. Bohemian Rhapsody" autocomplete="off" />
+      <input type="text" id="title" placeholder="e.g. Driving Home at 3am" autocomplete="off" />
     </div>
 
     <div class="form-row">
       <div class="form-group">
         <label for="song_key">Key</label>
-        <input type="text" id="song_key" placeholder="e.g. G Major" />
+        <input type="text" id="song_key" placeholder="e.g. A Minor" />
       </div>
       <div class="form-group">
         <label for="tempo_bpm">Tempo (BPM)</label>
-        <input type="number" id="tempo_bpm" min="1" max="300" placeholder="e.g. 120" />
+        <input type="number" id="tempo_bpm" min="1" max="300" placeholder="e.g. 78" />
       </div>
     </div>
 
@@ -178,8 +284,8 @@
       </div>
       <div class="form-group">
         <label for="duration_min">Duration (minutes)</label>
-        <input type="number" id="duration_min" step="0.1" min="0" placeholder="e.g. 3.5" />
-        <p class="helper">Stored internally as seconds</p>
+        <input type="number" id="duration_min" step="0.1" min="0" placeholder="e.g. 4.2" />
+        <p class="helper">Stored as seconds internally</p>
       </div>
     </div>
 
@@ -189,16 +295,24 @@
     </div>
 
     <div class="form-actions">
-      <button class="btn btn-primary" onclick="saveSong()">💾 Save Song</button>
-      <a href="index.html" class="btn btn-secondary">← Cancel</a>
+      <button class="btn-gold" onclick="saveSong()">Save Song</button>
+      <a href="index.html" class="btn-ghost">← Cancel</a>
     </div>
   </div>
 </main>
 
+<footer>
+  <div class="f-item"><span class="f-dot"></span>App running</div>
+  <div class="f-item">Demo: GitHub Pages</div>
+  <div class="f-item">localStorage only</div>
+  <div class="f-item">No database</div>
+  <div class="f-item">static · browser</div>
+</footer>
+
 <script src="songvault-mvp.js"></script>
 <script>
   function saveSong() {
-    const title = document.getElementById("title").value.trim();
+    const title  = document.getElementById("title").value.trim();
     const lyrics = document.getElementById("lyrics").value.trim();
 
     if (!title) {
@@ -212,39 +326,30 @@
       return;
     }
 
-    const songs = svLoadSongs();
-    const maxId = songs.reduce((m, s) => Math.max(m, s.id), 0);
-
+    const songs  = svLoadSongs();
+    const maxId  = songs.reduce((m, s) => Math.max(m, s.id), 0);
     const durStr = document.getElementById("duration_min").value.trim();
     const durSec = durStr ? Math.round(parseFloat(durStr) * 60) : 0;
 
-    const song = {
-      id: maxId + 1,
+    songs.push({
+      id:          maxId + 1,
       title,
-      song_key: document.getElementById("song_key").value.trim(),
-      tempo_bpm: parseInt(document.getElementById("tempo_bpm").value, 10) || null,
-      mood: document.getElementById("mood").value.trim(),
+      song_key:    document.getElementById("song_key").value.trim(),
+      tempo_bpm:   parseInt(document.getElementById("tempo_bpm").value, 10) || null,
+      mood:        document.getElementById("mood").value.trim(),
       duration_sec: durSec,
       lyrics,
-    };
-
-    songs.push(song);
+    });
     svSaveSongs(songs);
 
-    // Reset form and show success
-    document.getElementById("title").value = "";
-    document.getElementById("song_key").value = "";
-    document.getElementById("tempo_bpm").value = "";
-    document.getElementById("mood").value = "";
-    document.getElementById("duration_min").value = "";
-    document.getElementById("lyrics").value = "";
+    ["title", "song_key", "tempo_bpm", "mood", "duration_min", "lyrics"]
+      .forEach(id => { document.getElementById(id).value = ""; });
 
     const msg = document.getElementById("successMsg");
     msg.style.display = "block";
     msg.scrollIntoView({ behavior: "smooth" });
   }
 
-  // Allow Ctrl/Cmd+Enter to submit
   document.addEventListener("keydown", function(e) {
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter") saveSong();
   });
