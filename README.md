@@ -8,6 +8,11 @@
 
 ---
 
+> 🚀 **See what the finished app looks like before you deploy:** [**Live MVP Preview →**](https://wglewis0721.github.io/Songvault-ksb-/)
+> *(Static demo — runs in your browser with no AWS account needed. Songs stored in localStorage.)*
+
+---
+
 > **New to GitHub?** No account yet? Start here → [GITHUB_SETUP.md](GITHUB_SETUP.md) — it walks you through creating an account, forking this repo, and cloning it to your computer before anything else.
 
 ---
@@ -24,6 +29,7 @@
 
 ## What SongVault Does
 
+> **👀 Want to see it first?** Check out the [**live MVP preview**](https://wglewis0721.github.io/Songvault-ksb-/) — a static version of the app that runs entirely in your browser (no AWS needed). This is what your deployed app will look like when you're done.
 
 - Store song lyrics with metadata: key, tempo, mood, and duration
 - Build setlists with automatic total runtime calculation
@@ -193,6 +199,10 @@ terraform destroy
 ├── GITHUB_SETUP.md         ← Start here if you're new to GitHub (no account yet)
 ├── WALKTHROUGH.md          ← Step-by-step guide for first-time AWS users
 ├── .gitignore              ← Excludes terraform.tfvars and secrets
+├── index.html              ← GitHub Pages MVP — song library (static demo)
+├── add_song.html           ← GitHub Pages MVP — add song form (static demo)
+├── setlist.html            ← GitHub Pages MVP — setlist builder (static demo)
+├── songvault-mvp.js        ← GitHub Pages MVP — shared data helpers (localStorage)
 ├── app/
 │   ├── app.py              ← Flask application
 │   ├── requirements.txt    ← Python dependencies

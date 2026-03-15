@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SongVault 🎵</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    header h1 { font-size: 1.6rem; letter-spacing: 0.5px; }
+
+    nav a {
+      color: #a0c4ff;
+      text-decoration: none;
+      font-weight: bold;
+      margin-left: 20px;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: #fff; }
+
+    .demo-banner {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 12px 24px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .demo-banner strong { color: #333; }
+
+    main {
+      max-width: 960px;
+      margin: 32px auto;
+      padding: 0 20px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .section-header h2 { font-size: 1.3rem; color: #1a1a2e; }
+
+    .btn {
+      display: inline-block;
+      padding: 9px 20px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: bold;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: #0066cc; color: #fff; }
+    .btn-primary:hover { background: #0052a3; }
+    .btn-danger  { background: #dc3545; color: #fff; }
+    .btn-danger:hover  { background: #b02a37; }
+
+    /* Song table */
+    .song-table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+    }
+
+    thead { background: #1a1a2e; color: #fff; }
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      font-size: 0.9rem;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f5f8ff; }
+    th { font-weight: 600; letter-spacing: 0.3px; }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      font-weight: bold;
+    }
+    .tag-mood { background: #e8f4fd; color: #1565c0; }
+    .tag-key  { background: #f3e5f5; color: #6a1b9a; }
+
+    .empty-state {
+      background: #fff;
+      border-radius: 8px;
+      padding: 48px 24px;
+      text-align: center;
+      color: #888;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty-state p { margin-bottom: 20px; }
+
+    .action-cell { white-space: nowrap; }
+    .btn-sm {
+      padding: 4px 10px;
+      font-size: 0.78rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 28px 16px;
+      color: #aaa;
+      font-size: 0.82rem;
+    }
+    footer a { color: #0066cc; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🎵 SongVault</h1>
+  <nav>
+    <a href="add_song.html">➕ Add Song</a>
+    <a href="setlist.html">🎶 Setlist</a>
+  </nav>
+</header>
+
+<div class="demo-banner">
+  <strong>📌 Live Preview (MVP):</strong> This is a static demo running entirely in your browser — songs are stored in <code>localStorage</code>.
+  The real app runs on AWS (Flask + RDS PostgreSQL). See the <a href="https://github.com/WGLewis0721/Songvault-ksb-">README</a> to deploy it.
+</div>
+
+<main>
+  <div class="section-header">
+    <h2>All Songs</h2>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="btn btn-danger btn-sm" id="clearAllBtn" style="display:none;" onclick="clearAll()">🗑 Clear All</button>
+      <a href="add_song.html" class="btn btn-primary">➕ Add Song</a>
+    </div>
+  </div>
+
+  <div class="song-table-wrap">
+    <div id="content"></div>
+  </div>
+</main>
+
+<footer>
+  SongVault MVP &mdash; static preview only &nbsp;|&nbsp;
+  <a href="https://github.com/WGLewis0721/Songvault-ksb-" target="_blank">GitHub Repo</a>
+</footer>
+
+<script src="songvault-mvp.js"></script>
+<script>
+  function deleteSong(id) {
+    if (!confirm("Delete this song?")) return;
+    const songs = svLoadSongs().filter(s => s.id !== id);
+    svSaveSongs(songs);
+    // Also clean setlist
+    const sl = JSON.parse(localStorage.getItem("sv_setlist") || "[]")
+                 .filter(sid => sid !== id);
+    localStorage.setItem("sv_setlist", JSON.stringify(sl));
+    render();
+  }
+
+  function clearAll() {
+    if (!confirm("Delete ALL songs and reset to sample data?")) return;
+    localStorage.removeItem("sv_songs");
+    localStorage.removeItem("sv_setlist");
+    render();
+  }
+
+  function render() {
+    const songs = svLoadSongs();
+    const content = document.getElementById("content");
+    const clearBtn = document.getElementById("clearAllBtn");
+    clearBtn.style.display = songs.length ? "inline-block" : "none";
+
+    if (!songs.length) {
+      content.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">🎵</div>
+          <p>No songs yet.</p>
+          <a href="add_song.html" class="btn btn-primary">Add your first song!</a>
+        </div>`;
+      return;
+    }
+
+    content.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Key</th>
+            <th>Tempo (BPM)</th>
+            <th>Mood</th>
+            <th>Duration</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${songs.map((s, i) => `
+            <tr>
+              <td style="color:#aaa;font-size:.8rem">${i + 1}</td>
+              <td><strong>${svEscHtml(s.title)}</strong></td>
+              <td>${s.song_key ? `<span class="tag tag-key">${svEscHtml(s.song_key)}</span>` : "—"}</td>
+              <td>${s.tempo_bpm ? `${s.tempo_bpm} BPM` : "—"}</td>
+              <td>${s.mood ? `<span class="tag tag-mood">${svEscHtml(s.mood)}</span>` : "—"}</td>
+              <td>${svFmtDuration(s.duration_sec)}</td>
+              <td class="action-cell">
+                <button class="btn btn-danger btn-sm" onclick="deleteSong(${s.id})">🗑</button>
+              </td>
+            </tr>`).join("")}
+        </tbody>
+      </table>`;
+  }
+
+  render();
+</script>
+</body>
+</html>
