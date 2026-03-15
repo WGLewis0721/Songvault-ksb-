@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Setlist — SongVault 🎵</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    header h1 { font-size: 1.6rem; letter-spacing: 0.5px; }
+    nav a {
+      color: #a0c4ff;
+      text-decoration: none;
+      font-weight: bold;
+      margin-left: 20px;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: #fff; }
+
+    .demo-banner {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 12px 24px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .demo-banner strong { color: #333; }
+
+    main {
+      max-width: 800px;
+      margin: 32px auto;
+      padding: 0 20px 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 640px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e8e8e8;
+    }
+
+    /* Song picker */
+    .song-pick {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-bottom: 1px solid #f0f2f5;
+    }
+    .song-pick:last-child { border-bottom: none; }
+    .song-pick:hover { background: #f5f8ff; }
+    .song-pick input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      cursor: pointer;
+      accent-color: #0066cc;
+    }
+    .song-pick label {
+      flex: 1;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .song-dur {
+      font-size: 0.78rem;
+      color: #aaa;
+      white-space: nowrap;
+    }
+
+    .btn {
+      width: 100%;
+      margin-top: 18px;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .btn-green  { background: #28a745; color: #fff; }
+    .btn-green:hover  { background: #1e7e34; }
+
+    /* Setlist result */
+    .setlist-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 8px;
+      border-bottom: 1px solid #f0f2f5;
+      font-size: 0.9rem;
+    }
+    .setlist-item:last-child { border-bottom: none; }
+    .setlist-num {
+      min-width: 24px;
+      height: 24px;
+      background: #1a1a2e;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    .setlist-title { flex: 1; font-weight: bold; }
+    .setlist-dur { font-size: 0.8rem; color: #888; }
+
+    .total-bar {
+      margin-top: 16px;
+      padding: 12px;
+      background: #1a1a2e;
+      color: #fff;
+      border-radius: 6px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #aaa;
+      padding: 32px 8px;
+      font-size: 0.9rem;
+    }
+    .empty-state .icon { font-size: 2.2rem; margin-bottom: 8px; }
+
+    footer {
+      text-align: center;
+      padding: 24px 16px;
+      color: #aaa;
+      font-size: 0.82rem;
+    }
+    footer a { color: #0066cc; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🎵 SongVault</h1>
+  <nav>
+    <a href="index.html">📋 All Songs</a>
+    <a href="add_song.html">➕ Add Song</a>
+  </nav>
+</header>
+
+<div class="demo-banner">
+  <strong>📌 Live Preview (MVP):</strong> Setlist is saved to your browser's <code>localStorage</code>.
+  The real app uses AWS + PostgreSQL. See the <a href="https://github.com/WGLewis0721/Songvault-ksb-">README</a>.
+</div>
+
+<main>
+  <!-- Left: song picker -->
+  <div class="card">
+    <h2>🎵 Choose Songs</h2>
+    <div id="pickerList"></div>
+    <button class="btn btn-green" onclick="updateSetlist()">🎶 Update Setlist</button>
+  </div>
+
+  <!-- Right: current setlist -->
+  <div class="card">
+    <h2>📋 Current Setlist</h2>
+    <div id="setlistDisplay"></div>
+  </div>
+</main>
+
+<footer>
+  SongVault MVP &mdash; static preview only &nbsp;|&nbsp;
+  <a href="https://github.com/WGLewis0721/Songvault-ksb-" target="_blank">GitHub Repo</a>
+</footer>
+
+<script src="songvault-mvp.js"></script>
+<script>
+  function renderPicker() {
+    const songs = svLoadSongs();
+    const setlist = svLoadSetlist();
+    const picker = document.getElementById("pickerList");
+
+    if (!songs.length) {
+      picker.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">🎵</div>
+          <p>No songs yet.<br><a href="add_song.html">Add some songs first!</a></p>
+        </div>`;
+      return;
+    }
+
+    picker.innerHTML = songs.map(s => `
+      <div class="song-pick" onclick="toggleCheck(${s.id})">
+        <input type="checkbox" id="chk_${s.id}" value="${s.id}"
+          ${setlist.includes(s.id) ? "checked" : ""} />
+        <label for="chk_${s.id}">${svEscHtml(s.title)}</label>
+        <span class="song-dur">${svFmtDuration(s.duration_sec)}</span>
+      </div>`).join("");
+  }
+
+  function toggleCheck(id) {
+    const cb = document.getElementById("chk_" + id);
+    cb.checked = !cb.checked;
+  }
+
+  function updateSetlist() {
+    const songs = svLoadSongs();
+    const checked = songs
+      .filter(s => document.getElementById("chk_" + s.id)?.checked)
+      .map(s => s.id);
+
+    localStorage.setItem("sv_setlist", JSON.stringify(checked));
+    renderSetlist();
+  }
+
+  function renderSetlist() {
+    const songs = svLoadSongs();
+    const setlist = svLoadSetlist();
+    const display = document.getElementById("setlistDisplay");
+
+    const items = setlist.map(id => songs.find(s => s.id === id)).filter(Boolean);
+
+    if (!items.length) {
+      display.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">📋</div>
+          <p>No setlist yet.<br>Check some songs and click Update Setlist.</p>
+        </div>`;
+      return;
+    }
+
+    const totalSec = items.reduce((sum, s) => sum + (s.duration_sec || 0), 0);
+
+    display.innerHTML = `
+      <div>
+        ${items.map((s, i) => `
+          <div class="setlist-item">
+            <div class="setlist-num">${i + 1}</div>
+            <div class="setlist-title">${svEscHtml(s.title)}</div>
+            <div class="setlist-dur">${svFmtDuration(s.duration_sec)}</div>
+          </div>`).join("")}
+      </div>
+      <div class="total-bar">
+        <span>Total Runtime</span>
+        <span>${svFmtDuration(totalSec)}</span>
+      </div>`;
+  }
+
+  renderPicker();
+  renderSetlist();
+</script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Song — SongVault 🎵</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    header h1 { font-size: 1.6rem; letter-spacing: 0.5px; }
+    nav a {
+      color: #a0c4ff;
+      text-decoration: none;
+      font-weight: bold;
+      margin-left: 20px;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: #fff; }
+
+    .demo-banner {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 12px 24px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .demo-banner strong { color: #333; }
+
+    main {
+      max-width: 640px;
+      margin: 36px auto;
+      padding: 0 20px 40px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    }
+
+    h2 { margin-bottom: 24px; color: #1a1a2e; font-size: 1.25rem; }
+
+    .form-group { margin-bottom: 18px; }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+      color: #444;
+    }
+    .required { color: #dc3545; }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #0066cc;
+      box-shadow: 0 0 0 3px rgba(0,102,204,0.15);
+    }
+    textarea { height: 160px; resize: vertical; }
+
+    .form-row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .form-row .form-group { flex: 1; min-width: 120px; }
+
+    .btn {
+      padding: 10px 24px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: #0066cc; color: #fff; }
+    .btn-primary:hover { background: #0052a3; }
+    .btn-secondary {
+      background: #f0f2f5;
+      color: #555;
+      border: 1px solid #ccc;
+    }
+    .btn-secondary:hover { background: #e2e6ea; }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    #successMsg {
+      display: none;
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 6px;
+      padding: 14px 20px;
+      color: #155724;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .helper { font-size: 0.78rem; color: #888; margin-top: 3px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🎵 SongVault</h1>
+  <nav>
+    <a href="index.html">📋 All Songs</a>
+    <a href="setlist.html">🎶 Setlist</a>
+  </nav>
+</header>
+
+<div class="demo-banner">
+  <strong>📌 Live Preview (MVP):</strong> Songs are saved to your browser's <code>localStorage</code>.
+  The real app uses AWS + PostgreSQL. See the <a href="https://github.com/WGLewis0721/Songvault-ksb-">README</a>.
+</div>
+
+<main>
+  <div class="card">
+    <h2>➕ Add a New Song</h2>
+
+    <div id="successMsg">✅ Song saved! <a href="index.html">View all songs →</a></div>
+
+    <div class="form-group">
+      <label for="title">Title <span class="required">*</span></label>
+      <input type="text" id="title" placeholder="e.g. Bohemian Rhapsody" autocomplete="off" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="song_key">Key</label>
+        <input type="text" id="song_key" placeholder="e.g. G Major" />
+      </div>
+      <div class="form-group">
+        <label for="tempo_bpm">Tempo (BPM)</label>
+        <input type="number" id="tempo_bpm" min="1" max="300" placeholder="e.g. 120" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="mood">Mood</label>
+        <input type="text" id="mood" placeholder="e.g. melancholic" />
+      </div>
+      <div class="form-group">
+        <label for="duration_min">Duration (minutes)</label>
+        <input type="number" id="duration_min" step="0.1" min="0" placeholder="e.g. 3.5" />
+        <p class="helper">Stored internally as seconds</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="lyrics">Lyrics <span class="required">*</span></label>
+      <textarea id="lyrics" placeholder="Paste or type the full lyrics here…"></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveSong()">💾 Save Song</button>
+      <a href="index.html" class="btn btn-secondary">← Cancel</a>
+    </div>
+  </div>
+</main>
+
+<script src="songvault-mvp.js"></script>
+<script>
+  function saveSong() {
+    const title = document.getElementById("title").value.trim();
+    const lyrics = document.getElementById("lyrics").value.trim();
+
+    if (!title) {
+      alert("Title is required.");
+      document.getElementById("title").focus();
+      return;
+    }
+    if (!lyrics) {
+      alert("Lyrics are required.");
+      document.getElementById("lyrics").focus();
+      return;
+    }
+
+    const songs = svLoadSongs();
+    const maxId = songs.reduce((m, s) => Math.max(m, s.id), 0);
+
+    const durStr = document.getElementById("duration_min").value.trim();
+    const durSec = durStr ? Math.round(parseFloat(durStr) * 60) : 0;
+
+    const song = {
+      id: maxId + 1,
+      title,
+      song_key: document.getElementById("song_key").value.trim(),
+      tempo_bpm: parseInt(document.getElementById("tempo_bpm").value, 10) || null,
+      mood: document.getElementById("mood").value.trim(),
+      duration_sec: durSec,
+      lyrics,
+    };
+
+    songs.push(song);
+    svSaveSongs(songs);
+
+    // Reset form and show success
+    document.getElementById("title").value = "";
+    document.getElementById("song_key").value = "";
+    document.getElementById("tempo_bpm").value = "";
+    document.getElementById("mood").value = "";
+    document.getElementById("duration_min").value = "";
+    document.getElementById("lyrics").value = "";
+
+    const msg = document.getElementById("successMsg");
+    msg.style.display = "block";
+    msg.scrollIntoView({ behavior: "smooth" });
+  }
+
+  // Allow Ctrl/Cmd+Enter to submit
+  document.addEventListener("keydown", function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") saveSong();
+  });
+</script>
+</body>
+</html>
